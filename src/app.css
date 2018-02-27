@@ -5,8 +5,7 @@ body {
     font-size: 1.2em;
 }
 
-.container {
-    width: 700px;
-    margin: 0 auto;
-    border-radius: 20px;
+#main-container {
+    width: 500px;
+    margin: auto;
 }
