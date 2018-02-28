@@ -5,7 +5,27 @@ body {
     font-size: 1.2em;
 }
 
+
 #main-container {
     width: 500px;
     margin: auto;
+    background-color: #ddd;
+    border-radius: 10px;
+}
+
+#app-header {
+    text-align: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #aaa;
+    font-size: 2em;
+}
+
+#add-button-container {
+    padding: 10px;
+    text-align: right;
+}
+
+#recipe-list {
+    padding: 10px;
 }
