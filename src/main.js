@@ -21,7 +21,7 @@ const recipeReducer = (state = {}, action) => {
                 name: action.name,
                 ingredients: action.ingredients
             };
-        case 'EDIT_RECIPE':
+        case 'UPDATE_RECIPE':
             if (state.id === action.id) {
                 return Object.assign({}, state, {
                     name: action.name,
@@ -54,9 +54,18 @@ const recipeListReducer = (state = [], action) => {
 }
 
 // Create store from reducer
-const store = createStore(recipeListReducer);
+const store = createStore(recipeListReducer, retreiveFromLocalStorage());
 
+/** Store and retreive from local storage */
+function storeIntoLocalStorage() {
+    const strRecipes = JSON.stringify(store.getState());
+    localStorage.setItem('_vijayveluchamy_recipes', strRecipes);
+}
 
+function retreiveFromLocalStorage() {
+    const strRecipes = localStorage.getItem('_vijayveluchamy_recipes');
+    return strRecipes ? JSON.parse(strRecipes) : [];
+}
 
 /** UI Elements */
 let recipeIdx = 0;
@@ -72,6 +81,7 @@ class RecipeModal extends Component {
 
         this.state = {
             show: false,
+            recipeId: initRecipe.id,
             recipeName: initRecipe.name,
             recipeIngredients: initRecipe.ingredients
         };
@@ -87,6 +97,7 @@ class RecipeModal extends Component {
     handleSaveClick() {
         if (this.state.recipeName && this.state.recipeIngredients) {
             var recipe = {
+                id: this.state.recipeId,
                 name: this.state.recipeName,
                 ingredients: this.state.recipeIngredients
             }
@@ -201,6 +212,56 @@ class AddRecipeButton extends Component {
     }
 }
 
+/**
+ * Control button for editing a recipe
+ */
+class EditRecipeButton extends Component {
+    constructor (props) {
+        super(props);
+
+        this.state = {
+            modalShow: false
+        };
+    }
+
+    onSaveClick(recipe) {
+        //Dispatch the action for adding recipe
+        this.props.store.dispatch({
+            type: 'UPDATE_RECIPE',
+            id: recipe.id,
+            name: recipe.name,
+            ingredients: recipe.ingredients
+        });
+        //Close the modal
+        this.setState({modalShow: false});
+    }
+
+    render() {
+        return (
+            <ButtonToolbar className='edit-button-container'>
+                <Button
+                    className="btn btn-link pull-right"
+                    onClick={ () => this.setState({modalShow: true}) }
+                >   
+                    <span className="glyphicon glyphicon-pencil"></span>
+                </Button>
+                {
+                    this.state.modalShow ?
+                    <RecipeModal
+                        title='Edit Recipe'
+                        recipe={ this.props.recipe }
+                        show={ true }
+                        onHide={ () => this.setState({modalShow: false}) }
+                        onSaveClick={ (recipe) => this.onSaveClick(recipe) }
+                    >
+                    </RecipeModal>
+                    :null
+                }
+            </ButtonToolbar>    
+        );
+    }
+}
+
 class DeleteRecipeButton extends Component {
     handleClick(e) {
         e.preventDefault();
@@ -259,6 +320,7 @@ class Recipe extends Component {
                 <Panel.Heading className="clearfix">
                     <Panel.Title className="pull-left" toggle>{recipe.name}</Panel.Title>
                     <DeleteRecipeButton recipeId={recipe.id} store={this.props.store}/>
+                    <EditRecipeButton recipe={recipe} store={this.props.store} />
                 </Panel.Heading>
                 <Panel.Body collapsible>
                     <Ingredients ingredients={recipe.ingredients}/>
@@ -292,6 +354,7 @@ class RecipeList extends Component {
 
     componentWillUnmount() {
         this.unsubscribe();
+        storeIntoLocalStorage();
     }
 
     render() {
