@@ -9,7 +9,12 @@ import { ListGroup, ListGroupItem } from 'react-bootstrap';
 
 //const { Component } = React;
 //const { createStore } = Redux;
-//const { Modal, ModalTitle, ModalHeader, ModalBody, ModalFooter } = 'ReactBootstrap';
+//const { Row, Button, ButtonToolbar } = ReactBootstrap;
+//const { Modal, ModalTitle, ModalHeader, ModalBody, ModalFooter } = ReactBootstrap;
+//const { Form, FormGroup, FormControl, ControlLabel } = ReactBootstrap;
+//const { Panel, PanelGroup } = ReactBootstrap;
+//const { ListGroup, ListGroupItem } = ReactBootstrap;
+
 /** Reducers */
 
 //Recipe Reducer
@@ -67,8 +72,12 @@ function retreiveFromLocalStorage() {
     return strRecipes ? JSON.parse(strRecipes) : [];
 }
 
+window.onbeforeunload = function() {
+    storeIntoLocalStorage();
+}
+
 /** UI Elements */
-let recipeIdx = 0;
+let recipeIdx = store.getState().length;
 
 /**
  * Modal dialog to add/edit recipe
@@ -239,12 +248,12 @@ class EditRecipeButton extends Component {
     render() {
         return (
             <ButtonToolbar className='edit-button-container'>
-                <Button
-                    className="btn btn-link pull-right"
+                <a
+                    className="btn-link pull-right ctrl-button-link"
                     onClick={ () => this.setState({modalShow: true}) }
                 >   
                     <span className="glyphicon glyphicon-pencil"></span>
-                </Button>
+                </a>
                 {
                     this.state.modalShow ?
                     <RecipeModal
@@ -273,15 +282,15 @@ class DeleteRecipeButton extends Component {
 
     render(){
         return (
-            <button 
-                className="btn btn-link pull-right"
+            <a 
+                className="btn-link pull-right ctrl-button-link"
                 tooltip="Delete"
                 onClick={
                     (e) => this.handleClick(e)
                 }
             >
                 <span className="glyphicon glyphicon-trash"></span>
-            </button>
+            </a>
         );
     }
 }
@@ -316,7 +325,7 @@ class Recipe extends Component {
     render () {
         const recipe = this.props.recipe;
         return (
-            <Panel eventKey={recipe.id}>
+            <Panel eventKey={recipe.id} key={recipe.id}>
                 <Panel.Heading className="clearfix">
                     <Panel.Title className="pull-left" toggle>{recipe.name}</Panel.Title>
                     <DeleteRecipeButton recipeId={recipe.id} store={this.props.store}/>
@@ -354,7 +363,6 @@ class RecipeList extends Component {
 
     componentWillUnmount() {
         this.unsubscribe();
-        storeIntoLocalStorage();
     }
 
     render() {
@@ -385,7 +393,9 @@ class RecipeBox extends Component {
     render() {
         return (
             <div id='main-container'>
-                <header id='app-header'>Recipe Box</header>
+                <div id="app-header-container">
+                    <header id='app-header'>Recipe Box</header>
+                </div>
                 <AddRecipeButton store={store} />
                 <RecipeList store={store} />
             </div>
