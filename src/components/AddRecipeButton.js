@@ -3,7 +3,18 @@ import { Row, Button, ButtonToolbar } from 'react-bootstrap';
 import RecipeModal from './RecipeModal';
 import store from '../redux/store';
 
-let recipeIdx = store.getState().length;
+const getNextIdx = () => {
+    let recipes = store.getState() || [],
+        nextIdx = 0;
+    if (recipes.length > 0) {
+        let lastUsedId = recipes[recipes.length - 1]['id'];
+        nextIdx = lastUsedId + 1;
+    }    
+    return nextIdx;
+};
+
+//Initialize the id
+let recipeIdx = getNextIdx();
 
 /**
  * Control button for adding a new recipe
